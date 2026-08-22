@@ -12,7 +12,7 @@ const connectDB = async () => {
             console.log(chalk_1.default.green(`DB connected successfully`));
         });
         await mongoose_1.default.connect(config_service_1.env.DB_URI, {
-            connectTimeoutMS: 5000,
+            serverSelectionTimeoutMS: 5000,
         });
     }
     catch (error) {

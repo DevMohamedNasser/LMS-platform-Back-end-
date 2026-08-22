@@ -12,28 +12,31 @@ const email_event_1 = require("../../Utils/events/email.event");
 const tokens_security_1 = require("../../Utils/Security/tokens.security");
 const config_service_1 = require("../../Config/config.service");
 const user_enum_1 = require("../../Utils/enums/user.enum");
+const encryption_security_1 = require("../../Utils/Security/encryption.security");
 class AuthService {
     constructor() { }
     signup = async (req, res) => {
-        const { email, password, username, gender } = req.body;
+        const { email, password, username, phone, grade } = req.body;
         const isExist = await user_model_1.userModel.findOne({ email }).select("email");
         if (isExist)
             throw new error_response_1.ConflictException("User already exists");
         const otp = (0, generateOTP_1.default)();
+        const encryptedPhone = phone ? (0, encryption_security_1.Encrypt)(phone) : undefined;
         const user = await user_model_1.userModel.create([
             {
                 username,
                 email,
                 password: await (0, hash_security_1.generateHash)(password),
                 confirmEmailOTP: await (0, hash_security_1.generateHash)(otp),
-                gender,
                 confirmEmailOTPExp: Date.now() + 1 * 1000 * 60,
+                ...(grade && { grade }),
+                ...(encryptedPhone && { phone: encryptedPhone })
             },
         ], {
             validateBeforeSave: true,
         });
         email_event_1.emailEvent.emit("confirmEmail", { to: email, username, otp });
-        return res.status(201).json({ message: "Done", user });
+        return res.status(201).json({ message: "Done, Plz verify ur email", user });
     };
     confirmEmail = async (req, res) => {
         const { email, otp } = req.body;

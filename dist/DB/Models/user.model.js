@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userModel = exports.userSchema = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const user_enum_1 = require("../../Utils/enums/user.enum");
+const exam_enum_1 = require("../../Utils/enums/exam.enum");
 exports.userSchema = new mongoose_1.Schema({
     firstName: {
         type: String,
@@ -68,16 +69,15 @@ exports.userSchema = new mongoose_1.Schema({
         type: String,
         required: function () {
             return this.provider == user_enum_1.ProviderEnum.System;
-        }
+        },
     },
     resetPasswordOTP: String,
     forgetPasswordOTP: String,
     forgetPasswordOTPExp: Date,
     address: String,
-    gender: {
-        type: String,
-        enum: Object.values(user_enum_1.GenderEnum),
-        default: user_enum_1.GenderEnum.MALE,
+    grade: {
+        type: Number,
+        enum: exam_enum_1.gradeValues,
     },
     role: {
         type: String,

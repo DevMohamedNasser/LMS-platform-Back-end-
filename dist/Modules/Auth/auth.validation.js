@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.signupSchema = exports.googleOAuthSchema = exports.changePasswordSchema = exports.confirmEmailSchema = exports.resetPasswordSchema = exports.forgetPasswordSchema = exports.resendOTPSchema = exports.loginSchema = void 0;
 const z = __importStar(require("zod"));
 const user_enum_1 = require("../../Utils/enums/user.enum");
+const exam_enum_1 = require("../../Utils/enums/exam.enum");
 exports.loginSchema = {
     body: z.strictObject({
         email: z.email(),
@@ -101,6 +102,7 @@ exports.googleOAuthSchema = {
 exports.signupSchema = {
     body: exports.loginSchema.body
         .extend({
+        grade: z.enum(exam_enum_1.gradeEnum),
         username: z
             .string({ error: "username is required" })
             .min(2, { error: "username must be at least 2 chars long" })
@@ -109,6 +111,7 @@ exports.signupSchema = {
             .string({ error: "password is required" })
             .min(6, { error: "password must be at least 6 chars long" }),
         gender: z.enum(user_enum_1.GenderEnum).default(user_enum_1.GenderEnum.MALE),
+        phone: z.string().regex(/^(?:0|\+20|020)1[0125][\d]{8}$/)
     })
         .superRefine((data, ctx) => {
         if (data.password !== data.confirmPassword) {

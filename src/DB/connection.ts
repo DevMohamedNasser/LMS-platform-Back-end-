@@ -9,7 +9,7 @@ const connectDB = async (): Promise<void> => {
     });
 
     await mongoose.connect(env.DB_URI, {
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 5000,
     });
   } catch (error) {
     console.log(chalk.red(`Error connecting DB`, (error as Error).message));

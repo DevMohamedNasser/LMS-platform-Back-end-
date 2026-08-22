@@ -15,6 +15,7 @@ const rateLimit_middleware_1 = require("./Middlewares/rateLimit.middleware");
 const error_response_1 = require("./Utils/response/error.response");
 const Modules_1 = require("./Modules");
 const connection_1 = __importDefault(require("./DB/connection"));
+const node_path_1 = __importDefault(require("node:path"));
 // const limiter: RateLimitRequestHandler = rateLimit({
 //   windowMs: env.WINDOW_MS,
 //   limit: env.RATE_LIMIT,
@@ -34,7 +35,10 @@ const bootstrap = async () => {
     app.get("/", (req, res) => {
         return res.status(200).json({ message: `Welcome To ${config_service_1.env.APP_NAME} App` });
     });
+    app.use("/uploads", express_1.default.static(node_path_1.default.resolve("./uploads")));
     app.use("/api/v1/auth", Modules_1.authRouter);
+    app.use("/api/v1/post", Modules_1.postRouter);
+    app.use("/api/v1/exam", Modules_1.examRouter);
     app.use("/:dummy", (req, res) => {
         throw new error_response_1.NotFoundException("Not Found Handler (Route)");
     });

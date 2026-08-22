@@ -16,6 +16,6 @@ export const sendEmail = async (data: Mail.Options): Promise<void> => {
   });
   await transporter.sendMail({
     ...data,
-    from: `"Social Media App" <${env.EMAIL_USERNAME}>`,
+    from: `"LMS" <${env.EMAIL_USERNAME}>`,
   });
 };

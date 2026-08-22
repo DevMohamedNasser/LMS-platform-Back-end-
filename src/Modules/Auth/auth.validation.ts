@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { GenderEnum } from "../../Utils/enums/user.enum";
+import { gradeEnum } from "../../Utils/enums/exam.enum";
 
 export const loginSchema = {
   body: z.strictObject({
@@ -73,6 +74,7 @@ export const googleOAuthSchema = {
 export const signupSchema = {
   body: loginSchema.body
     .extend({
+      grade: z.enum(gradeEnum),
       username: z
         .string({ error: "username is required" })
         .min(2, { error: "username must be at least 2 chars long" })
@@ -82,6 +84,7 @@ export const signupSchema = {
         .string({ error: "password is required" })
         .min(6, { error: "password must be at least 6 chars long" }),
       gender: z.enum(GenderEnum).default(GenderEnum.MALE),
+      phone: z.string().regex(/^(?:0|\+20|020)1[0125][\d]{8}$/)
     })
     .superRefine((data, ctx) => {
       if (data.password !== data.confirmPassword) {

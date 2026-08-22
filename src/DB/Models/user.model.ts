@@ -1,9 +1,6 @@
 import mongoose, { HydratedDocument, Model, Schema, Types } from "mongoose";
-import {
-  GenderEnum,
-  ProviderEnum,
-  RoleEnum,
-} from "../../Utils/enums/user.enum";
+import { ProviderEnum, RoleEnum } from "../../Utils/enums/user.enum";
+import { gradeEnum, gradeValues } from "../../Utils/enums/exam.enum";
 
 export interface IUser {
   _id: Types.ObjectId;
@@ -25,7 +22,8 @@ export interface IUser {
   profilePic: string;
   provider: ProviderEnum;
 
-  gender: GenderEnum;
+  // gender: GenderEnum;
+  grade: gradeEnum;
   role: RoleEnum;
 
   createdAt: Date;
@@ -63,19 +61,20 @@ export const userSchema = new Schema<IUser>(
     confirmedAt: Date,
     password: {
       type: String,
-      required: function(this) {
+      required: function (this) {
         return this.provider == ProviderEnum.System;
-      }
+      },
     },
     resetPasswordOTP: String,
     forgetPasswordOTP: String,
     forgetPasswordOTPExp: Date,
     address: String,
-    gender: {
-      type: String,
-      enum: Object.values(GenderEnum),
-      default: GenderEnum.MALE,
+
+    grade: {
+      type: Number,
+      enum: gradeValues, 
     },
+
     role: {
       type: String,
       enum: Object.values(RoleEnum),

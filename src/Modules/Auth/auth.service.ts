@@ -24,17 +24,20 @@ import { getNewLoginCredentials } from "../../Utils/Security/tokens.security";
 import { env } from "../../Config/config.service";
 import { IPayloadGoogleOAuth } from "../../Utils/SocialLogin.interface";
 import { ProviderEnum } from "../../Utils/enums/user.enum";
+import { Encrypt } from "../../Utils/Security/encryption.security";
 
 class AuthService {
   constructor() {}
 
   signup = async (req: Request, res: Response): Promise<Response> => {
-    const { email, password, username, gender }: ISignupDTO = req.body;
+    const { email, password, username, phone, grade }: ISignupDTO = req.body;
 
     const isExist = await userModel.findOne({ email }).select("email");
     if (isExist) throw new ConflictException("User already exists");
 
     const otp = generateOTP();
+
+    const encryptedPhone = phone ? Encrypt(phone) : undefined;
 
     const user = await userModel.create(
       [
@@ -43,8 +46,9 @@ class AuthService {
           email,
           password: await generateHash(password),
           confirmEmailOTP: await generateHash(otp),
-          gender,
           confirmEmailOTPExp: Date.now() + 1 * 1000 * 60,
+          ...(grade && {grade}),
+          ...(encryptedPhone && {phone: encryptedPhone})
         },
       ],
       {
@@ -54,7 +58,7 @@ class AuthService {
 
     emailEvent.emit("confirmEmail", { to: email, username, otp });
 
-    return res.status(201).json({ message: "Done", user });
+    return res.status(201).json({ message: "Done, Plz verify ur email", user });
   };
 
   confirmEmail = async (req: Request, res: Response): Promise<Response> => {

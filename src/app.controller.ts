@@ -11,8 +11,9 @@ import {
   globalErrorHandler,
   NotFoundException,
 } from "./Utils/response/error.response";
-import { authRouter } from "./Modules";
+import { authRouter, examRouter, postRouter } from "./Modules";
 import connectDB from "./DB/connection";
+import path from "node:path";
 
 // const limiter: RateLimitRequestHandler = rateLimit({
 //   windowMs: env.WINDOW_MS,
@@ -37,7 +38,10 @@ const bootstrap = async (): Promise<void> => {
     return res.status(200).json({ message: `Welcome To ${env.APP_NAME} App` });
   });
 
+  app.use("/uploads", express.static(path.resolve("./uploads")));
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/post", postRouter);
+  app.use("/api/v1/exam", examRouter)
 
   app.use("/:dummy", (req: Request, res: Response) => {
     throw new NotFoundException("Not Found Handler (Route)");

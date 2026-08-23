@@ -33,7 +33,7 @@ export const submitExamBodySchema = {
         questionId: z
           .string()
           .regex(/^\w{24}$/, { error: "Invalid question id" }),
-        answer: z.number().int().min(0).max(3),
+        answer: z.string().regex(/^\w{24}$/, { error: "Invalid answer id" }),
       }),
     ),
   }),

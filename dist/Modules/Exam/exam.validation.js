@@ -31,7 +31,7 @@ exports.submitExamBodySchema = {
             questionId: zod_1.z
                 .string()
                 .regex(/^\w{24}$/, { error: "Invalid question id" }),
-            answer: zod_1.z.number().int().min(0).max(3),
+            answer: zod_1.z.string().regex(/^\w{24}$/, { error: "Invalid answer id" }),
         })),
     }),
 };

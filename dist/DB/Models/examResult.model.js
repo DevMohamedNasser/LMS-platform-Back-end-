@@ -62,9 +62,7 @@ const examResultSchema = new mongoose_1.Schema({
                 type: mongoose_1.Types.ObjectId,
             },
             answer: {
-                type: Number,
-                min: 0,
-                max: 3,
+                type: mongoose_1.Types.ObjectId,
             },
         },
     ],

@@ -4,6 +4,7 @@ const exam_model_1 = require("../../DB/Models/exam.model");
 const user_enum_1 = require("../../Utils/enums/user.enum");
 const error_response_1 = require("../../Utils/response/error.response");
 const examResult_model_1 = require("../../DB/Models/examResult.model");
+const mongoose_1 = require("mongoose");
 class ExamService {
     constructor() { }
     createExam = async (req, res) => {
@@ -24,16 +25,28 @@ class ExamService {
         };
         if (req.user.role !== user_enum_1.RoleEnum.ADMIN)
             throw new error_response_1.ForbiddenException("Only admin can do this!!!");
-        const formattedQuestions = questions.map((question) => ({
-            question: question.question,
-            options: question.options,
-            correctAns: getAnsIdx(question.correctAns),
-        }));
+        // const formattedQuestions = questions.map((question) => ({
+        //   question: question.question,
+        //   options: question.options,
+        //   correctAns: getAnsIdx(question.correctAns),
+        // }));
+        const detailedQuestions = questions.map((question) => {
+            const options = question.options.map((option) => ({
+                _id: new mongoose_1.Types.ObjectId(), // create index for each option & store it
+                text: option,
+            }));
+            const correctIdx = getAnsIdx(question.correctAns);
+            return {
+                question: question.question,
+                options,
+                correctAns: options[correctIdx]._id,
+            };
+        });
         const exam = await exam_model_1.examModel.create({
             title,
             grade,
             durationMin: duration,
-            questions: formattedQuestions,
+            questions: detailedQuestions,
         });
         return res.status(201).json({ message: "Created successfully", exam });
     };
@@ -71,9 +84,7 @@ class ExamService {
                         ...(wrong && { wrongAns: wrong.answer }),
                     };
                 });
-                return res
-                    .status(200)
-                    .json({
+                return res.status(200).json({
                     message: "done",
                     data: { score: result.score, questions: detailedQuestions },
                 });
@@ -125,7 +136,8 @@ class ExamService {
         if (!isExists) {
             throw new error_response_1.BadRequestException("Take Exam before submit it. Use API 'Get /api/v1/exam/:examId");
         }
-        if (Date.now() > isExists.startedAt.getTime() + exam.durationMin * 1000 * 60)
+        if (Date.now() >
+            isExists.startedAt.getTime() + exam.durationMin * 1000 * 60)
             throw new error_response_1.BadRequestException("Timeout");
         const wrongAns = [];
         let correctCount = 0;
@@ -142,7 +154,7 @@ class ExamService {
             const question = questionsMap.get(studentAnswer.questionId);
             if (!question)
                 throw new error_response_1.NotFoundException(`Question ${studentAnswer.questionId} doesn't belong to exam`);
-            if (question.correctAns === studentAnswer.answer) {
+            if (question.correctAns.toString() === studentAnswer.answer.toString()) {
                 correctCount++;
             }
             else {

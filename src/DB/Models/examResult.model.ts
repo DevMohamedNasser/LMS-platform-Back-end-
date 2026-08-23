@@ -42,9 +42,7 @@ const examResultSchema = new Schema<IExamResult>(
           type: Types.ObjectId,
         },
         answer: {
-          type: Number,
-          min: 0,
-          max: 3,
+          type: Types.ObjectId,
         },
       },
     ],

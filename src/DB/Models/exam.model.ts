@@ -1,11 +1,15 @@
 import mongoose, { HydratedDocument, Model, Schema, Types } from "mongoose";
 import { gradeEnum, gradeValues } from "../../Utils/enums/exam.enum";
 
+export interface IOption {
+  _id: Types.ObjectId;
+  text: string;
+}
 export interface IQuestion {
   _id: Types.ObjectId;
   question: string;
-  options: string[];
-  correctAns: number;
+  options: IOption[];
+  correctAns: Types.ObjectId;
 }
 
 export interface IExam {
@@ -16,6 +20,16 @@ export interface IExam {
   durationMin: number;
 }
 
+export const optionSchema = new Schema<IOption>(
+  {
+    text: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: false },
+);
+
 export const questionSchema = new Schema<IQuestion>(
   {
     question: {
@@ -24,14 +38,12 @@ export const questionSchema = new Schema<IQuestion>(
     },
     options: [
       {
-        type: String,
+        type: optionSchema,
         required: true,
       },
     ],
     correctAns: {
-      type: Number,
-      min: 0,
-      max: 3,
+      type: Types.ObjectId,
       required: true,
     },
   },

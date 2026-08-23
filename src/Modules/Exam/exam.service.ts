@@ -8,6 +8,7 @@ import {
   NotFoundException,
 } from "../../Utils/response/error.response";
 import { examResultModel } from "../../DB/Models/examResult.model";
+import { Types } from "mongoose";
 
 class ExamService {
   constructor() {}
@@ -35,17 +36,32 @@ class ExamService {
     if (req.user!.role !== RoleEnum.ADMIN)
       throw new ForbiddenException("Only admin can do this!!!");
 
-    const formattedQuestions = questions.map((question) => ({
-      question: question.question,
-      options: question.options,
-      correctAns: getAnsIdx(question.correctAns),
-    }));
+    // const formattedQuestions = questions.map((question) => ({
+    //   question: question.question,
+    //   options: question.options,
+    //   correctAns: getAnsIdx(question.correctAns),
+    // }));
+
+    const detailedQuestions = questions.map((question) => {
+      const options = question.options.map((option) => ({
+        _id: new Types.ObjectId(), // create index for each option & store it
+        text: option,
+      }));
+
+      const correctIdx = getAnsIdx(question.correctAns);
+
+      return {
+        question: question.question,
+        options,
+        correctAns: options[correctIdx]!._id,
+      };
+    });
 
     const exam = await examModel.create({
       title,
       grade,
       durationMin: duration,
-      questions: formattedQuestions,
+      questions: detailedQuestions,
     });
 
     return res.status(201).json({ message: "Created successfully", exam });
@@ -96,12 +112,10 @@ class ExamService {
           };
         });
 
-        return res
-          .status(200)
-          .json({
-            message: "done",
-            data: { score: result.score, questions: detailedQuestions },
-          });
+        return res.status(200).json({
+          message: "done",
+          data: { score: result.score, questions: detailedQuestions },
+        });
       } else {
         const exam = await examModel
           .findOne({ _id: id, grade: req.user!.grade })
@@ -156,9 +170,14 @@ class ExamService {
         `Exam already submitted. Ur score is ${isExists.score}`,
       );
     if (!isExists) {
-      throw new BadRequestException("Take Exam before submit it. Use API 'Get /api/v1/exam/:examId")
+      throw new BadRequestException(
+        "Take Exam before submit it. Use API 'Get /api/v1/exam/:examId",
+      );
     }
-    if ( Date.now() > isExists.startedAt.getTime() + exam.durationMin * 1000 * 60 )
+    if (
+      Date.now() >
+      isExists.startedAt.getTime() + exam.durationMin * 1000 * 60
+    )
       throw new BadRequestException("Timeout");
 
     const wrongAns = [];
@@ -185,7 +204,7 @@ class ExamService {
           `Question ${studentAnswer.questionId} doesn't belong to exam`,
         );
 
-      if (question.correctAns === studentAnswer.answer) {
+      if (question.correctAns.toString() === studentAnswer.answer.toString()) {
         correctCount++;
       } else {
         wrongAns.push({

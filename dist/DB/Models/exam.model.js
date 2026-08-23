@@ -33,9 +33,15 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.examModel = exports.examSchema = exports.questionSchema = void 0;
+exports.examModel = exports.examSchema = exports.questionSchema = exports.optionSchema = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const exam_enum_1 = require("../../Utils/enums/exam.enum");
+exports.optionSchema = new mongoose_1.Schema({
+    text: {
+        type: String,
+        required: true,
+    },
+}, { timestamps: false });
 exports.questionSchema = new mongoose_1.Schema({
     question: {
         type: String,
@@ -43,14 +49,12 @@ exports.questionSchema = new mongoose_1.Schema({
     },
     options: [
         {
-            type: String,
+            type: exports.optionSchema,
             required: true,
         },
     ],
     correctAns: {
-        type: Number,
-        min: 0,
-        max: 3,
+        type: mongoose_1.Types.ObjectId,
         required: true,
     },
 }, { timestamps: false });

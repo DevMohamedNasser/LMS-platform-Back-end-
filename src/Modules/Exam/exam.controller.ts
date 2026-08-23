@@ -16,10 +16,7 @@ router.post(
   examService.createExam,
 );
 
-router.get(
-  "/list-exams",
-  examService.listExams
-)
+router.get("/list-exams", examService.listExams);
 
 router.get(
   "/:id",

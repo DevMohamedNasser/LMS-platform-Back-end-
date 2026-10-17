@@ -21,6 +21,8 @@
     "concurrently": "^10.0.4"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
+    "@aws-sdk/lib-storage": "^3.1152.0",
     "bcrypt": "^6.0.0",
     "chalk": "^6.0.0",
     "cors": "^2.8.6",

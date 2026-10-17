@@ -15,6 +15,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./Auth/index"), exports);
-__exportStar(require("./Post/index"), exports);
 __exportStar(require("./Exam/index"), exports);
 __exportStar(require("./ExamResult/index"), exports);
+__exportStar(require("./Material/index"), exports);

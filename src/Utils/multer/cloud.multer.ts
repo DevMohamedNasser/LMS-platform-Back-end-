@@ -3,13 +3,14 @@ import multer, { FileFilterCallback, StorageEngine } from "multer";
 import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { BadRequestException } from "../response/error.response";
+import { MulterStorageEnum } from "../enums/multer/cloud.enum";
 
 export const fileValidation = {
   image: [
     "image/avif",
     "image/gif",
     "image/jpeg",
-    "image/jpeg",
+    "image/jpg",
     "image/webp",
     "image/png",
   ],
@@ -19,33 +20,38 @@ export const fileValidation = {
 
 export const uploadDir = resolve("./uploads");
 
-export const localFileUpload = ({
+export const uploadFile = ({
+  storageKey = MulterStorageEnum.MemoryStorage,
   validation = fileValidation.image,
   maxSizeMB = 5,
   folder = "general",
 }: {
-  validation: string[];
+  storageKey?: MulterStorageEnum;
+  validation?: string[];
   maxSizeMB?: number;
   folder?: string;
 }) => {
-  const storage: StorageEngine = multer.diskStorage({
-    destination: (req: Request, file, cb) => {
-      const destPath = resolve(`./uploads/${folder}`);
-      if (!existsSync(destPath)) {
-        mkdirSync(destPath, { recursive: true });
-      }
-      cb(null, destPath);
-    },
-    filename: (req: Request, file, cb) => {
-      const uniqueSuffix =
-        Date.now() +
-        "-" +
-        Math.round(Math.random() * 1e9) +
-        "-" +
-        file.originalname;
-      cb(null, file.fieldname + "-" + uniqueSuffix);
-    },
-  });
+  const storage: StorageEngine =
+    storageKey === MulterStorageEnum.MemoryStorage
+      ? multer.memoryStorage()
+      : multer.diskStorage({
+          destination: (req: Request, file, cb) => {
+            const destPath = resolve(`./uploads/${folder}`);
+            if (!existsSync(destPath)) {
+              mkdirSync(destPath, { recursive: true });
+            }
+            cb(null, destPath);
+          },
+          filename: (req: Request, file, cb) => {
+            const uniqueSuffix =
+              // Date.now() +
+              // "-" +
+              // Math.round(Math.random() * 1e9) +
+              // "-" +
+              file.originalname;
+            cb(null, file.fieldname + "-" + uniqueSuffix);
+          },
+        });
 
   const fileFilter = (
     req: Request,
@@ -63,6 +69,6 @@ export const localFileUpload = ({
   return multer({
     storage,
     fileFilter,
-    limits: { fieldSize: maxSizeMB * 1024 * 1024 },
+    limits: { fileSize: maxSizeMB * 1024 * 1024 },
   });
 };

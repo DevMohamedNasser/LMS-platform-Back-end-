@@ -11,7 +11,7 @@ import {
   globalErrorHandler,
   NotFoundException,
 } from "./Utils/response/error.response";
-import { authRouter, examRouter, postRouter } from "./Modules";
+import { authRouter, examRouter, MaterialRouter } from "./Modules";
 import connectDB from "./DB/connection";
 import path from "node:path";
 
@@ -40,8 +40,8 @@ const bootstrap = async (): Promise<void> => {
 
   app.use("/uploads", express.static(path.resolve("./uploads")));
   app.use("/api/v1/auth", authRouter);
-  app.use("/api/v1/post", postRouter);
-  app.use("/api/v1/exam", examRouter)
+  app.use("/api/v1/exam", examRouter);
+  app.use("/api/v1/material", MaterialRouter);
 
   app.use("/:dummy", (req: Request, res: Response) => {
     throw new NotFoundException("Not Found Handler (Route)");

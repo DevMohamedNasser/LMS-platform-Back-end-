@@ -37,8 +37,8 @@ const bootstrap = async () => {
     });
     app.use("/uploads", express_1.default.static(node_path_1.default.resolve("./uploads")));
     app.use("/api/v1/auth", Modules_1.authRouter);
-    app.use("/api/v1/post", Modules_1.postRouter);
     app.use("/api/v1/exam", Modules_1.examRouter);
+    app.use("/api/v1/material", Modules_1.MaterialRouter);
     app.use("/:dummy", (req, res) => {
         throw new error_response_1.NotFoundException("Not Found Handler (Route)");
     });

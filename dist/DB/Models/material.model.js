@@ -40,6 +40,7 @@ const materialSchema = new mongoose_1.Schema({
     title: {
         type: String,
         required: true,
+        min: 2,
     },
     content: {
         type: String,
@@ -47,7 +48,7 @@ const materialSchema = new mongoose_1.Schema({
     },
     grade: {
         type: Number,
-        enum: Object.values(exam_enum_1.gradeEnum),
+        enum: Object.values(exam_enum_1.gradeValues),
         required: true,
     },
     material: [String],

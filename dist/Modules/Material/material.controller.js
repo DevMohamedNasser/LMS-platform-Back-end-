@@ -37,13 +37,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const authentication_middleware_1 = require("../../Middlewares/authentication.middleware");
 const cloud_multer_1 = require("../../Utils/multer/cloud.multer");
+const material_service_1 = __importDefault(require("./material.service"));
+const cloud_enum_1 = require("../../Utils/enums/multer/cloud.enum");
 const validation_middleware_1 = require("../../Middlewares/validation.middleware");
-const validators = __importStar(require("./post.validation"));
-const post_service_1 = __importDefault(require("./post.service"));
+const validators = __importStar(require("./material.validation"));
 const router = (0, express_1.Router)();
-router.use((0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }));
-// create post
-router.post("/", (0, cloud_multer_1.localFileUpload)({ validation: cloud_multer_1.fileValidation.image, folder: "posts" }).array("attachments", 20), (0, validation_middleware_1.validation)(validators.createPostSchema), post_service_1.default.createPost);
+router.post("/", (0, cloud_multer_1.uploadFile)({
+    storageKey: cloud_enum_1.MulterStorageEnum.DiskStorage,
+    validation: [
+        ...cloud_multer_1.fileValidation.image,
+        ...cloud_multer_1.fileValidation.document,
+        ...cloud_multer_1.fileValidation.video,
+    ],
+    maxSizeMB: 20,
+}).single("file"), (0, validation_middleware_1.validation)(validators.createMaterialBodySchema), material_service_1.default.createMaterial);
 exports.default = router;

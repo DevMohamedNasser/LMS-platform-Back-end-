@@ -54,6 +54,11 @@ export const env = {
   WHITE_LIST: process.env.WHITE_LIST!,
   RATE_LIMIT: Number(process.env.RATE_LIMIT),
   WINDOW_MS: Number(process.env.WINDOW_MS),
+
+  // AWS S3
+  ACCESS_KEY: process.env.ACCESS_KEY as string,
+  SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY as string,
+  BUCKET_NAME: process.env.BUCKET_NAME,
 };
 
 export type Env = typeof env;

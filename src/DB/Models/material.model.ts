@@ -1,5 +1,5 @@
 import mongoose, { HydratedDocument, Model, Schema, Types } from "mongoose";
-import { gradeEnum } from "../../Utils/enums/exam.enum";
+import { gradeEnum, gradeValues } from "../../Utils/enums/exam.enum";
 
 interface IMaterial {
   _id: Types.ObjectId;
@@ -14,6 +14,7 @@ const materialSchema = new Schema<IMaterial>(
     title: {
       type: String,
       required: true,
+      min: 2,
     },
     content: {
       type: String,
@@ -21,7 +22,7 @@ const materialSchema = new Schema<IMaterial>(
     },
     grade: {
       type: Number,
-      enum: Object.values(gradeEnum),
+      enum: Object.values(gradeValues),
       required: true,
     },
     material: [String],

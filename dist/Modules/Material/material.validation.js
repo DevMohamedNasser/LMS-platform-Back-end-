@@ -33,25 +33,13 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postModel = exports.postSchema = void 0;
-const mongoose_1 = __importStar(require("mongoose"));
-exports.postSchema = new mongoose_1.Schema({
-    content: {
-        type: String,
-        minLength: 2,
-        maxLength: 50000,
-        required: function () {
-            return !this.attachments?.length;
-        },
-    },
-    attachments: [{ type: String }],
-    createdBy: { type: mongoose_1.Types.ObjectId, ref: "User", required: true },
-    likes: [{ type: mongoose_1.Types.ObjectId, ref: "User" }],
-    freezedAt: Date,
-    tags: [{ type: mongoose_1.Types.ObjectId, ref: "User" }],
-}, {
-    timestamps: true,
-});
-// Compound Index
-exports.postSchema.index({ createdBy: 1, createdAt: -1 }); // -1: Descending (latest date)
-exports.postModel = mongoose_1.default.models.Post || mongoose_1.default.model("Post", exports.postSchema);
+exports.createMaterialBodySchema = void 0;
+const z = __importStar(require("zod"));
+const exam_enum_1 = require("../../Utils/enums/exam.enum");
+exports.createMaterialBodySchema = {
+    body: z.strictObject({
+        title: z.string().min(2),
+        content: z.string(),
+        grade: z.coerce.number().int().pipe(z.enum(exam_enum_1.gradeEnum)),
+    }),
+};

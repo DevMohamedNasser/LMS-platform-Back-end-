@@ -39,12 +39,13 @@ const exam_enum_1 = require("../../Utils/enums/exam.enum");
 const materialSchema = new mongoose_1.Schema({
     title: {
         type: String,
+        minLength: 2,
         required: true,
-        min: 2,
+        unique: true,
     },
     content: {
         type: String,
-        required: true,
+        required: false,
     },
     grade: {
         type: Number,

@@ -1,4 +1,6 @@
 import {
+  DeleteObjectCommand,
+  GetObjectCommand,
   ObjectCannedACL,
   PutObjectCommand,
   S3Client,
@@ -8,6 +10,8 @@ import { MulterStorageEnum } from "../enums/multer/cloud.enum";
 import { createReadStream } from "node:fs";
 import { Upload } from "@aws-sdk/lib-storage";
 import chalk from "chalk";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { randomUUID } from "node:crypto";
 
 export class S3Service {
   // S3 connection
@@ -97,6 +101,84 @@ export class S3Service {
     });
     await result.done();
     return key;
+  }
+
+  async getFile({
+    Bucket = env.BUCKET_NAME,
+    key,
+  }: {
+    Bucket?: string;
+    key: string;
+  }) {
+    const file = new GetObjectCommand({
+      Bucket,
+      Key: key,
+    }); // get file from AWS
+
+    return await this.client.send(file); // Access file from AWS & send it to me
+  }
+
+  //  pre signed url to make the load on the client device instead of my server
+  async createPreSignedUrl({
+    Bucket = env.BUCKET_NAME,
+    path = "general",
+    ContentType,
+    Key,
+    Expires = 60 * 2,
+    Originalname,
+  }: {
+    Bucket?: string;
+    path?: string;
+    ContentType?: string;
+    Key?: string;
+    Expires?: number;
+    Originalname?: string;
+  }) {
+    const key = `${path}/${randomUUID()}-${Originalname}`;
+    const result = new PutObjectCommand({
+      Bucket,
+      Key: key,
+      ContentType,
+    });
+
+    const url = await getSignedUrl(this.client, result, { expiresIn: Expires });
+    return { url, key };
+  }
+
+  async createGetPreSignedUrl({
+    Bucket = env.BUCKET_NAME,
+    Key,
+    Expires = 60 * 5,
+  }: {
+    Bucket?: string;
+    Key: string;
+    Expires?: number;
+  }) {
+    const command = new GetObjectCommand({
+      Bucket,
+      Key,
+      ResponseContentDisposition: "inline", // inline علشان المتصفح يقدر يعرض الصورة أو الفيديو بدل ما يطلب تحميله مباشرة
+    });
+
+    const url = await getSignedUrl(this.client, command, {
+      expiresIn: Expires,
+    });
+
+    return url;
+  }
+
+  async deleteFile({
+    Bucket = env.BUCKET_NAME,
+    key,
+  }: {
+    Bucket?: string;
+    key: string;
+  }) {
+    const result = new DeleteObjectCommand({
+      Bucket,
+      Key: key,
+    });
+    return await this.client.send(result);
   }
 }
 

@@ -10,6 +10,8 @@ const cloud_enum_1 = require("../enums/multer/cloud.enum");
 const node_fs_1 = require("node:fs");
 const lib_storage_1 = require("@aws-sdk/lib-storage");
 const chalk_1 = __importDefault(require("chalk"));
+const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
+const node_crypto_1 = require("node:crypto");
 class S3Service {
     // S3 connection
     client; // الكلاينت شايل ال connection بيني وبين AWS
@@ -60,6 +62,42 @@ class S3Service {
         });
         await result.done();
         return key;
+    }
+    async getFile({ Bucket = config_service_1.env.BUCKET_NAME, key, }) {
+        const file = new client_s3_1.GetObjectCommand({
+            Bucket,
+            Key: key,
+        }); // get file from AWS
+        return await this.client.send(file); // Access file from AWS & send it to me
+    }
+    //  pre signed url to make the load on the client device instead of my server
+    async createPreSignedUrl({ Bucket = config_service_1.env.BUCKET_NAME, path = "general", ContentType, Key, Expires = 60 * 2, Originalname, }) {
+        const key = `${path}/${(0, node_crypto_1.randomUUID)()}-${Originalname}`;
+        const result = new client_s3_1.PutObjectCommand({
+            Bucket,
+            Key: key,
+            ContentType,
+        });
+        const url = await (0, s3_request_presigner_1.getSignedUrl)(this.client, result, { expiresIn: Expires });
+        return { url, key };
+    }
+    async createGetPreSignedUrl({ Bucket = config_service_1.env.BUCKET_NAME, Key, Expires = 60 * 5, }) {
+        const command = new client_s3_1.GetObjectCommand({
+            Bucket,
+            Key,
+            ResponseContentDisposition: "inline", // inline علشان المتصفح يقدر يعرض الصورة أو الفيديو بدل ما يطلب تحميله مباشرة
+        });
+        const url = await (0, s3_request_presigner_1.getSignedUrl)(this.client, command, {
+            expiresIn: Expires,
+        });
+        return url;
+    }
+    async deleteFile({ Bucket = config_service_1.env.BUCKET_NAME, key, }) {
+        const result = new client_s3_1.DeleteObjectCommand({
+            Bucket,
+            Key: key,
+        });
+        return await this.client.send(result);
     }
 }
 exports.S3Service = S3Service;

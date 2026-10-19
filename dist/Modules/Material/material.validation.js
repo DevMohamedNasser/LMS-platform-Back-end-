@@ -33,13 +33,18 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMaterialBodySchema = void 0;
+exports.mongoIdSchema = exports.createMaterialBodySchema = void 0;
 const z = __importStar(require("zod"));
 const exam_enum_1 = require("../../Utils/enums/exam.enum");
 exports.createMaterialBodySchema = {
     body: z.strictObject({
         title: z.string().min(2),
-        content: z.string(),
+        content: z.string().optional(),
         grade: z.coerce.number().int().pipe(z.enum(exam_enum_1.gradeEnum)),
+    }),
+};
+exports.mongoIdSchema = {
+    params: z.strictObject({
+        id: z.string().regex(/^\w{24}$/, { error: "Invalid ID format" }),
     }),
 };

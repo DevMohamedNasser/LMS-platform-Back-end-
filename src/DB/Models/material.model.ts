@@ -4,7 +4,7 @@ import { gradeEnum, gradeValues } from "../../Utils/enums/exam.enum";
 interface IMaterial {
   _id: Types.ObjectId;
   title: string;
-  content: string;
+  content?: string;
   grade: gradeEnum;
   material: string[];
 }
@@ -13,12 +13,13 @@ const materialSchema = new Schema<IMaterial>(
   {
     title: {
       type: String,
+      minLength: 2,
       required: true,
-      min: 2,
+      unique: true,
     },
     content: {
       type: String,
-      required: true,
+      required: false,
     },
     grade: {
       type: Number,

@@ -37,19 +37,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const cloud_multer_1 = require("../../Utils/multer/cloud.multer");
 const material_service_1 = __importDefault(require("./material.service"));
-const cloud_enum_1 = require("../../Utils/enums/multer/cloud.enum");
 const validation_middleware_1 = require("../../Middlewares/validation.middleware");
 const validators = __importStar(require("./material.validation"));
+const authentication_middleware_1 = require("../../Middlewares/authentication.middleware");
+const user_enum_1 = require("../../Utils/enums/user.enum");
+// import { fileValidation, uploadFile } from "../../Utils/multer/cloud.multer";
+// import { MulterStorageEnum } from "../../Utils/enums/multer/cloud.enum";
 const router = (0, express_1.Router)();
-router.post("/", (0, cloud_multer_1.uploadFile)({
-    storageKey: cloud_enum_1.MulterStorageEnum.DiskStorage,
-    validation: [
-        ...cloud_multer_1.fileValidation.image,
-        ...cloud_multer_1.fileValidation.document,
-        ...cloud_multer_1.fileValidation.video,
-    ],
-    maxSizeMB: 20,
-}).single("file"), (0, validation_middleware_1.validation)(validators.createMaterialBodySchema), material_service_1.default.createMaterial);
+/** Upload through Front-end client to AWS S3 (Use it when server is heavy/weak) */
+// router.post(
+//   "/",
+//   authentication({ tokenType: TokenTypeEnum.access }),
+//   authorization({ accessRoles: [RoleEnum.ADMIN] }),
+//   uploadFile({
+//     storageKey: MulterStorageEnum.DiskStorage,
+//     validation: [
+//       ...fileValidation.image,
+//       ...fileValidation.document,
+//       ...fileValidation.video,
+//     ],
+//     maxSizeMB: 20,
+//   }).single("file"),
+//   validation(validators.createMaterialBodySchema),
+//   materialService.createMaterial,
+// );
+/** Upload through Front-end client to AWS S3 (Use it when server is heavy/weak) */
+router.post("/", (0, validation_middleware_1.validation)(validators.createMaterialBodySchema), (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), (0, authentication_middleware_1.authorization)({ accessRoles: [user_enum_1.RoleEnum.ADMIN] }), material_service_1.default.createMaterial);
+router.get("/list-all", (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), material_service_1.default.listAllMaterials);
+router.get("/:id", (0, validation_middleware_1.validation)(validators.mongoIdSchema), (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), material_service_1.default.getMaterial);
+router.delete("/:id", (0, validation_middleware_1.validation)(validators.mongoIdSchema), (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), (0, authentication_middleware_1.authorization)({ accessRoles: [user_enum_1.RoleEnum.ADMIN] }), material_service_1.default.deleteMaterial);
 exports.default = router;

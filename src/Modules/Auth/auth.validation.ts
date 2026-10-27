@@ -67,7 +67,7 @@ export const changePasswordSchema = {
 
 export const googleOAuthSchema = {
   body: z.object({
-    idToken: z.string({error: "idToken is required"}),
+    idToken: z.string({ error: "idToken is required" }),
   }),
 };
 
@@ -84,7 +84,7 @@ export const signupSchema = {
         .string({ error: "password is required" })
         .min(6, { error: "password must be at least 6 chars long" }),
       gender: z.enum(GenderEnum).default(GenderEnum.MALE),
-      phone: z.string().regex(/^(?:0|\+20|020)1[0125][\d]{8}$/)
+      phone: z.string().regex(/^(?:0|\+20|020)1[0125][\d]{8}$/),
     })
     .superRefine((data, ctx) => {
       if (data.password !== data.confirmPassword) {
@@ -95,4 +95,10 @@ export const signupSchema = {
         });
       }
     }),
+};
+
+export const FCMToken = {
+  body: z.strictObject({
+    deviceToken: z.string().trim().min(1, "Device token is required"),
+  }),
 };

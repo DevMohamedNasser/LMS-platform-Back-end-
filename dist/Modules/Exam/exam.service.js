@@ -5,6 +5,7 @@ const user_enum_1 = require("../../Utils/enums/user.enum");
 const error_response_1 = require("../../Utils/response/error.response");
 const examResult_model_1 = require("../../DB/Models/examResult.model");
 const mongoose_1 = require("mongoose");
+const notification_event_1 = require("../../Utils/events/notification.event");
 class ExamService {
     constructor() { }
     createExam = async (req, res) => {
@@ -23,8 +24,6 @@ class ExamService {
                     throw new error_response_1.BadRequestException("Correct answer must be 'a', 'b', 'c' or 'd'");
             }
         };
-        if (req.user.role !== user_enum_1.RoleEnum.ADMIN)
-            throw new error_response_1.ForbiddenException("Only admin can do this!!!");
         // const formattedQuestions = questions.map((question) => ({
         //   question: question.question,
         //   options: question.options,
@@ -48,6 +47,7 @@ class ExamService {
             durationMin: duration,
             questions: detailedQuestions,
         });
+        notification_event_1.notificationEvent.emit("newExam", { grade });
         return res.status(201).json({ message: "Created successfully", exam });
     };
     listExams = async (req, res) => {

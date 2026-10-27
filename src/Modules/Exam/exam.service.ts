@@ -9,6 +9,8 @@ import {
 } from "../../Utils/response/error.response";
 import { examResultModel } from "../../DB/Models/examResult.model";
 import { Types } from "mongoose";
+import { userModel } from "../../DB/Models/user.model";
+import { notificationEvent } from "../../Utils/events/notification.event";
 
 class ExamService {
   constructor() {}
@@ -32,9 +34,6 @@ class ExamService {
           );
       }
     };
-
-    if (req.user!.role !== RoleEnum.ADMIN)
-      throw new ForbiddenException("Only admin can do this!!!");
 
     // const formattedQuestions = questions.map((question) => ({
     //   question: question.question,
@@ -63,6 +62,8 @@ class ExamService {
       durationMin: duration,
       questions: detailedQuestions,
     });
+
+    notificationEvent.emit("newExam", { grade });
 
     return res.status(201).json({ message: "Created successfully", exam });
   };

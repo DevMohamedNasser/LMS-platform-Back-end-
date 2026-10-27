@@ -41,9 +41,10 @@ const authentication_middleware_1 = require("../../Middlewares/authentication.mi
 const exam_service_1 = __importDefault(require("./exam.service"));
 const validators = __importStar(require("./exam.validation"));
 const validation_middleware_1 = require("../../Middlewares/validation.middleware");
+const user_enum_1 = require("../../Utils/enums/user.enum");
 const router = (0, express_1.Router)();
 router.use((0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }));
-router.post("/", (0, validation_middleware_1.validation)(validators.CreateExamBodySchema), exam_service_1.default.createExam);
+router.post("/", (0, validation_middleware_1.validation)(validators.CreateExamBodySchema), (0, authentication_middleware_1.authorization)({ accessRoles: [user_enum_1.RoleEnum.ADMIN] }), exam_service_1.default.createExam);
 router.get("/list-exams", exam_service_1.default.listExams);
 router.get("/:id", (0, validation_middleware_1.validation)(validators.examParamsIdSchema), exam_service_1.default.getExam);
 router.post("/submit/:id", (0, validation_middleware_1.validation)(validators.examParamsIdSchema), (0, validation_middleware_1.validation)(validators.submitExamBodySchema), exam_service_1.default.submitExam);

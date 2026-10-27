@@ -47,8 +47,8 @@ class AuthService {
           password: await generateHash(password),
           confirmEmailOTP: await generateHash(otp),
           confirmEmailOTPExp: Date.now() + 1 * 1000 * 60,
-          ...(grade && {grade}),
-          ...(encryptedPhone && {phone: encryptedPhone})
+          ...(grade && { grade }),
+          ...(encryptedPhone && { phone: encryptedPhone }),
         },
       ],
       {
@@ -262,6 +262,26 @@ class AuthService {
     const tokens = getNewLoginCredentials(req.user!);
 
     return res.status(200).json({ message: "done", tokens });
+  };
+
+  firebaseEnableNotifications = async (
+    req: Request,
+    res: Response,
+  ): Promise<Response> => {
+    const { deviceToken } = req.body;
+
+    const user = await userModel.findByIdAndUpdate(
+      req.user!._id,
+      {
+        $addToSet: { deviceTokens: deviceToken },
+        notificationEnabled: true,
+      },
+      { returnDocument: "after" },
+    );
+
+    return res
+      .status(200)
+      .json({ message: "Notifications enabled successfully", user });
   };
 }
 

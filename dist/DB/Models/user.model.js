@@ -86,6 +86,9 @@ exports.userSchema = new mongoose_1.Schema({
     },
     phone: String,
     profilePic: String,
+    // Firebase Notifications
+    deviceTokens: [{ type: String }],
+    notificationEnabled: { type: Boolean, default: true },
 }, {
     timestamps: true,
     toObject: { virtuals: true },

@@ -17,6 +17,7 @@ import path from "node:path";
 import S3Service from "./Utils/service/S3.service";
 import { promisify } from "node:util";
 import { pipeline } from "node:stream";
+import { initializeFirebase } from "./Utils/firebase/firebase.config";
 
 // const limiter: RateLimitRequestHandler = rateLimit({
 //   windowMs: env.WINDOW_MS,
@@ -31,6 +32,8 @@ import { pipeline } from "node:stream";
 
 const bootstrap = async (): Promise<void> => {
   const app: Express = express();
+
+  initializeFirebase();
 
   // تاخد ال Body from AWS + Response عشان اقدر اعمل convert له يكون readable واضيف ف الاخر الداتا لل response تروح للفرونت اند
   const s3GetFile = promisify(pipeline); // promisify حاجه تستقبل promise خصوصًا ال stream , اما pipeline ماسوره تستقبل ال buffer from AWS

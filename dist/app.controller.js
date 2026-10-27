@@ -18,6 +18,7 @@ const node_path_1 = __importDefault(require("node:path"));
 const S3_service_1 = __importDefault(require("./Utils/service/S3.service"));
 const node_util_1 = require("node:util");
 const node_stream_1 = require("node:stream");
+const firebase_config_1 = require("./Utils/firebase/firebase.config");
 // const limiter: RateLimitRequestHandler = rateLimit({
 //   windowMs: env.WINDOW_MS,
 //   limit: env.RATE_LIMIT,
@@ -30,6 +31,7 @@ const node_stream_1 = require("node:stream");
 // })
 const bootstrap = async () => {
     const app = (0, express_1.default)();
+    (0, firebase_config_1.initializeFirebase)();
     // تاخد ال Body from AWS + Response عشان اقدر اعمل convert له يكون readable واضيف ف الاخر الداتا لل response تروح للفرونت اند
     const s3GetFile = (0, node_util_1.promisify)(node_stream_1.pipeline); // promisify حاجه تستقبل promise خصوصًا ال stream , اما pipeline ماسوره تستقبل ال buffer from AWS
     // app.use(helmet(), cors(corsOptions), limiter);

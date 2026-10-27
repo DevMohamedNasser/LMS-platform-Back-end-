@@ -59,4 +59,12 @@ router.post(
   authService.refreshToken,
 );
 
+// Firebase notifications
+router.post(
+  "/enable-notifications",
+  validation(authValidation.FCMToken),
+  authentication({ tokenType: TokenTypeEnum.access }),
+  authService.firebaseEnableNotifications,
+);
+
 export default router;

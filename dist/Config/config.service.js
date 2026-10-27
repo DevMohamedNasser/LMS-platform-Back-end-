@@ -46,4 +46,6 @@ exports.env = {
     ACCESS_KEY: process.env.ACCESS_KEY,
     SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY,
     BUCKET_NAME: process.env.BUCKET_NAME,
+    // Firebase notifications
+    FIREBASE_SYSTEM_ACCOUNT: "./Config/lms-notifications-6e12f-firebase-adminsdk-fbsvc-5fce517517.json",
 };

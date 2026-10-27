@@ -26,6 +26,10 @@ export interface IUser {
   grade: gradeEnum;
   role: RoleEnum;
 
+  // FirebaseNotifications
+  deviceTokens: string[];
+  notificationEnabled: boolean;
+
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -72,7 +76,7 @@ export const userSchema = new Schema<IUser>(
 
     grade: {
       type: Number,
-      enum: gradeValues, 
+      enum: gradeValues,
     },
 
     role: {
@@ -82,6 +86,10 @@ export const userSchema = new Schema<IUser>(
     },
     phone: String,
     profilePic: String,
+
+    // Firebase Notifications
+    deviceTokens: [{ type: String }],
+    notificationEnabled: { type: Boolean, default: true },
   },
   {
     timestamps: true,

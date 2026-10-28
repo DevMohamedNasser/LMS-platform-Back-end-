@@ -30,7 +30,7 @@ class AuthService {
                 confirmEmailOTP: await (0, hash_security_1.generateHash)(otp),
                 confirmEmailOTPExp: Date.now() + 1 * 1000 * 60,
                 ...(grade && { grade }),
-                ...(encryptedPhone && { phone: encryptedPhone })
+                ...(encryptedPhone && { phone: encryptedPhone }),
             },
         ], {
             validateBeforeSave: true,
@@ -183,6 +183,39 @@ class AuthService {
     refreshToken = async (req, res) => {
         const tokens = (0, tokens_security_1.getNewLoginCredentials)(req.user);
         return res.status(200).json({ message: "done", tokens });
+    };
+    changeUserRole = async (req, res) => {
+        const { id } = req.params;
+        const { role } = req.body;
+        const user = await user_model_1.userModel.findByIdAndUpdate(id, { role, $unset: { grade: true }, $inc: { __v: 1 } }, { returnDocument: "after" });
+        if (!user)
+            throw new error_response_1.NotFoundException("User not found");
+        return res.status(200).json({ message: "done", data: user });
+    };
+    changeUserGrade = async (req, res) => {
+        const userId = req.user._id;
+        const { grade } = req.body;
+        const user = await user_model_1.userModel.findByIdAndUpdate(userId, { grade, $inc: { __v: 1 } }, { returnDocument: "after" });
+        if (!user)
+            throw new error_response_1.NotFoundException("User not found");
+        return res.status(200).json({ message: "done", data: user });
+    };
+    softDeleteUser = async (req, res) => {
+        const { id } = req.params;
+        const user = await user_model_1.userModel.findByIdAndUpdate(id, { deletedAt: new Date(), deletedBy: req.user._id, $inc: { __v: 1 } }, { returnDocument: "after" });
+        if (!user)
+            throw new error_response_1.NotFoundException("User not found");
+        return res.status(200).json({ message: "done", data: user });
+    };
+    firebaseEnableNotifications = async (req, res) => {
+        const { deviceToken } = req.body;
+        const user = await user_model_1.userModel.findByIdAndUpdate(req.user._id, {
+            $addToSet: { deviceTokens: deviceToken },
+            notificationEnabled: true,
+        }, { returnDocument: "after" });
+        return res
+            .status(200)
+            .json({ message: "Notifications enabled successfully", user });
     };
 }
 exports.default = new AuthService();

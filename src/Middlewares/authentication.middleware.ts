@@ -9,6 +9,7 @@ import { RoleEnum } from "../Utils/enums/user.enum";
 import {
   BadRequestException,
   ForbiddenException,
+  NotFoundException,
 } from "../Utils/response/error.response";
 
 export enum TokenTypeEnum {
@@ -41,6 +42,8 @@ export const decodedToken = async ({
 
   const user = await userModel.findOne({ _id: decoded.id });
   if (!user) throw new Error("User not found");
+
+  if (user.deletedAt) throw new NotFoundException("Account has been deleted");
 
   return { decoded, user };
 };

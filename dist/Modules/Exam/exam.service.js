@@ -10,6 +10,9 @@ class ExamService {
     constructor() { }
     createExam = async (req, res) => {
         const { title, grade, duration, questions } = req.body;
+        const isExist = await exam_model_1.examModel.findOne({ title, grade });
+        if (isExist)
+            throw new error_response_1.ConflictException("Exam title already exists for this grade");
         const getAnsIdx = (ans) => {
             switch (ans.toLowerCase()) {
                 case "a":
@@ -55,6 +58,8 @@ class ExamService {
             const exams = await exam_model_1.examModel.find().sort({ grade: -1 });
             return res.status(200).json({ message: "done", data: { exams } });
         }
+        if (!req.user.grade)
+            throw new error_response_1.BadRequestException("You must select your grade first");
         const examsTitles = await exam_model_1.examModel
             .find({ grade: req.user.grade })
             .select("title");
@@ -72,7 +77,7 @@ class ExamService {
         })
             .populate("exam");
         if (req.user.role === user_enum_1.RoleEnum.USER) {
-            if (result?.score) {
+            if (result?.score !== undefined) {
                 const exam = result.exam;
                 const detailedQuestions = exam.questions.map((question) => {
                     const wrong = result.wrongAns?.find((ans) => ans.questionId.toString() === question._id.toString());
@@ -90,6 +95,8 @@ class ExamService {
                 });
             }
             else {
+                if (!req.user.grade)
+                    throw new error_response_1.BadRequestException("You must select your grade first");
                 const exam = await exam_model_1.examModel
                     .findOne({ _id: id, grade: req.user.grade })
                     .select("title durationMin questions.question questions.options questions._id");

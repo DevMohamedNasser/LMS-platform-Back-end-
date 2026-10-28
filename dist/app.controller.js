@@ -19,6 +19,9 @@ const S3_service_1 = __importDefault(require("./Utils/service/S3.service"));
 const node_util_1 = require("node:util");
 const node_stream_1 = require("node:stream");
 const firebase_config_1 = require("./Utils/firebase/firebase.config");
+const express_2 = require("graphql-http/lib/use/express");
+const graphql_schema_1 = require("./Modules/graphql/graphql.schema");
+const graphql_ctx_1 = require("./Modules/graphql/graphql.ctx");
 // const limiter: RateLimitRequestHandler = rateLimit({
 //   windowMs: env.WINDOW_MS,
 //   limit: env.RATE_LIMIT,
@@ -38,6 +41,14 @@ const bootstrap = async () => {
     app.use((0, helmet_1.default)(), (0, cors_1.default)(cors_2.corsOptions), (0, rateLimit_middleware_1.customRateLimiter)());
     app.use(express_1.default.json());
     await (0, connection_1.default)();
+    app.all("/graphql", (0, express_2.createHandler)({
+        schema: graphql_schema_1.schema,
+        context: async (req) => {
+            const raw = req.raw;
+            const ctx = await (0, graphql_ctx_1.buildCtx)(raw.headers.authorization);
+            return ctx;
+        },
+    }));
     app.get("/", (req, res) => {
         return res.status(200).json({ message: `Welcome To ${config_service_1.env.APP_NAME} App` });
     });

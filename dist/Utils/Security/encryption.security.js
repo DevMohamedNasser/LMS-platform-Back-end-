@@ -42,7 +42,7 @@ const Encrypt = (text) => {
     const iv = node_crypto_1.default.randomBytes(IV_LENGTH);
     const cipher = node_crypto_1.default.createCipheriv("aes-256-cbc", ENCRYPTION_SECRET_KEY, iv);
     let encryptedData = cipher.update(text, "utf-8", "hex");
-    encryptedData += cipher.final;
+    encryptedData += cipher.final("hex");
     return `${iv.toString("hex")}:${encryptedData}`;
 };
 exports.Encrypt = Encrypt;

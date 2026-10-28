@@ -59,6 +59,29 @@ router.post(
   authService.refreshToken,
 );
 
+router.patch(
+  "/role/:id",
+  validation(authValidation.changeUserRole),
+  authentication({ tokenType: TokenTypeEnum.access }),
+  authorization({ accessRoles: [RoleEnum.ADMIN] }),
+  authService.changeUserRole,
+);
+
+router.patch(
+  "/grade",
+  validation(authValidation.changeUserGrade),
+  authentication({ tokenType: TokenTypeEnum.access }),
+  authService.changeUserGrade,
+);
+
+router.delete(
+  "/soft/:id",
+  validation(authValidation.mongoId),
+  authentication({ tokenType: TokenTypeEnum.access }),
+  authorization({ accessRoles: [RoleEnum.ADMIN] }),
+  authService.softDeleteUser,
+);
+
 // Firebase notifications
 router.post(
   "/enable-notifications",

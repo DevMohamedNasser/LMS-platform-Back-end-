@@ -18,6 +18,9 @@ import S3Service from "./Utils/service/S3.service";
 import { promisify } from "node:util";
 import { pipeline } from "node:stream";
 import { initializeFirebase } from "./Utils/firebase/firebase.config";
+import { createHandler } from "graphql-http/lib/use/express";
+import { schema } from "./Modules/graphql/graphql.schema";
+import { buildCtx } from "./Modules/graphql/graphql.ctx";
 
 // const limiter: RateLimitRequestHandler = rateLimit({
 //   windowMs: env.WINDOW_MS,
@@ -42,6 +45,18 @@ const bootstrap = async (): Promise<void> => {
   app.use(helmet(), cors(corsOptions), customRateLimiter());
   app.use(express.json());
   await connectDB();
+
+  app.all(
+    "/graphql",
+    createHandler({
+      schema,
+      context: async (req) => {
+        const raw = req.raw as Request;
+        const ctx = await buildCtx(raw.headers.authorization);
+        return ctx as unknown as Record<PropertyKey, unknown>;
+      },
+    }),
+  );
 
   app.get("/", (req: Request, res: Response) => {
     return res.status(200).json({ message: `Welcome To ${env.APP_NAME} App` });

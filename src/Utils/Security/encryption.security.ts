@@ -13,7 +13,7 @@ export const Encrypt = (text: string): string => {
   );
 
   let encryptedData = cipher.update(text, "utf-8", "hex");
-  encryptedData += cipher.final;
+  encryptedData += cipher.final("hex");
 
   return `${iv.toString("hex")}:${encryptedData}`;
 };

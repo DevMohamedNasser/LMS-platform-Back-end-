@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signupSchema = exports.googleOAuthSchema = exports.changePasswordSchema = exports.confirmEmailSchema = exports.resetPasswordSchema = exports.forgetPasswordSchema = exports.resendOTPSchema = exports.loginSchema = void 0;
+exports.mongoId = exports.changeUserGrade = exports.changeUserRole = exports.FCMToken = exports.signupSchema = exports.googleOAuthSchema = exports.changePasswordSchema = exports.confirmEmailSchema = exports.resetPasswordSchema = exports.forgetPasswordSchema = exports.resendOTPSchema = exports.loginSchema = void 0;
 const z = __importStar(require("zod"));
 const user_enum_1 = require("../../Utils/enums/user.enum");
 const exam_enum_1 = require("../../Utils/enums/exam.enum");
@@ -111,7 +111,7 @@ exports.signupSchema = {
             .string({ error: "password is required" })
             .min(6, { error: "password must be at least 6 chars long" }),
         gender: z.enum(user_enum_1.GenderEnum).default(user_enum_1.GenderEnum.MALE),
-        phone: z.string().regex(/^(?:0|\+20|020)1[0125][\d]{8}$/)
+        phone: z.string().regex(/^(?:0|\+20|020)1[0125][\d]{8}$/),
     })
         .superRefine((data, ctx) => {
         if (data.password !== data.confirmPassword) {
@@ -121,5 +121,25 @@ exports.signupSchema = {
                 message: "password mismatch",
             });
         }
+    }),
+};
+exports.FCMToken = {
+    body: z.strictObject({
+        deviceToken: z.string().trim().min(1, "Device token is required"),
+    }),
+};
+exports.changeUserRole = {
+    body: z.strictObject({
+        role: z.enum(user_enum_1.RoleEnum),
+    }),
+};
+exports.changeUserGrade = {
+    body: z.object({
+        grade: z.enum(exam_enum_1.gradeEnum),
+    }),
+};
+exports.mongoId = {
+    params: z.object({
+        id: z.string().regex(/^\w{24}$/, { error: "Invalid question id" }),
     }),
 };

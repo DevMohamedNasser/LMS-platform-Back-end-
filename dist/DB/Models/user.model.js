@@ -89,6 +89,13 @@ exports.userSchema = new mongoose_1.Schema({
     // Firebase Notifications
     deviceTokens: [{ type: String }],
     notificationEnabled: { type: Boolean, default: true },
+    deletedAt: {
+        type: Date,
+    },
+    deletedBy: {
+        type: mongoose_1.Types.ObjectId,
+        ref: "User",
+    },
 }, {
     timestamps: true,
     toObject: { virtuals: true },
@@ -110,4 +117,5 @@ exports.userSchema
     .get(function () {
     return `${this.firstName} ${this.lastName}`;
 });
+// userSchema.index({ deletedAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 }); // a month
 exports.userModel = mongoose_1.default.models.User || mongoose_1.default.model("User", exports.userSchema);

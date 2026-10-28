@@ -25,6 +25,7 @@ import { env } from "../../Config/config.service";
 import { IPayloadGoogleOAuth } from "../../Utils/SocialLogin.interface";
 import { ProviderEnum } from "../../Utils/enums/user.enum";
 import { Encrypt } from "../../Utils/Security/encryption.security";
+import { Types } from "mongoose";
 
 class AuthService {
   constructor() {}
@@ -262,6 +263,47 @@ class AuthService {
     const tokens = getNewLoginCredentials(req.user!);
 
     return res.status(200).json({ message: "done", tokens });
+  };
+
+  changeUserRole = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const user = await userModel.findByIdAndUpdate(
+      id,
+      { role, $unset: { grade: true }, $inc: { __v: 1 } },
+      { returnDocument: "after" },
+    );
+    if (!user) throw new NotFoundException("User not found");
+
+    return res.status(200).json({ message: "done", data: user });
+  };
+
+  changeUserGrade = async (req: Request, res: Response): Promise<Response> => {
+    const userId = req.user!._id;
+    const { grade } = req.body;
+
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { grade, $inc: { __v: 1 } },
+      { returnDocument: "after" },
+    );
+    if (!user) throw new NotFoundException("User not found");
+
+    return res.status(200).json({ message: "done", data: user });
+  };
+
+  softDeleteUser = async (req: Request, res: Response): Promise<Response> => {
+    const { id } = req.params;
+
+    const user = await userModel.findByIdAndUpdate(
+      id,
+      { deletedAt: new Date(), deletedBy: req.user!._id, $inc: { __v: 1 } },
+      { returnDocument: "after" },
+    );
+    if (!user) throw new NotFoundException("User not found");
+
+    return res.status(200).json({ message: "done", data: user });
   };
 
   firebaseEnableNotifications = async (

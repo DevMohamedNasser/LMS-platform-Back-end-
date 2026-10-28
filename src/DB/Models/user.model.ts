@@ -19,11 +19,11 @@ export interface IUser {
 
   phone?: string;
   address?: string;
-  profilePic: string;
+  profilePic?: string;
   provider: ProviderEnum;
 
   // gender: GenderEnum;
-  grade: gradeEnum;
+  grade?: gradeEnum;
   role: RoleEnum;
 
   // FirebaseNotifications
@@ -32,6 +32,8 @@ export interface IUser {
 
   createdAt: Date;
   updatedAt?: Date;
+  deletedAt?: Date;
+  deletedBy?: Types.ObjectId;
 }
 
 export const userSchema = new Schema<IUser>(
@@ -90,6 +92,14 @@ export const userSchema = new Schema<IUser>(
     // Firebase Notifications
     deviceTokens: [{ type: String }],
     notificationEnabled: { type: Boolean, default: true },
+
+    deletedAt: {
+      type: Date,
+    },
+    deletedBy: {
+      type: Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,
@@ -114,6 +124,8 @@ userSchema
   .get(function (this: IUser) {
     return `${this.firstName} ${this.lastName}`;
   });
+
+// userSchema.index({ deletedAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 }); // a month
 
 export const userModel: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", userSchema);

@@ -4,12 +4,11 @@ import { examModel, IExam } from "../../DB/Models/exam.model";
 import { RoleEnum } from "../../Utils/enums/user.enum";
 import {
   BadRequestException,
-  ForbiddenException,
+  ConflictException,
   NotFoundException,
 } from "../../Utils/response/error.response";
 import { examResultModel } from "../../DB/Models/examResult.model";
 import { Types } from "mongoose";
-import { userModel } from "../../DB/Models/user.model";
 import { notificationEvent } from "../../Utils/events/notification.event";
 
 class ExamService {
@@ -17,6 +16,10 @@ class ExamService {
 
   createExam = async (req: Request, res: Response): Promise<Response> => {
     const { title, grade, duration, questions }: IExamDTO = req.body;
+
+    const isExist = await examModel.findOne({ title, grade });
+    if (isExist)
+      throw new ConflictException("Exam title already exists for this grade");
 
     const getAnsIdx = (ans: string): number => {
       switch (ans.toLowerCase()) {
@@ -74,6 +77,9 @@ class ExamService {
 
       return res.status(200).json({ message: "done", data: { exams } });
     }
+    if (!req.user!.grade)
+      throw new BadRequestException("You must select your grade first");
+
     const examsTitles = await examModel
       .find({ grade: req.user!.grade })
       .select("title");
@@ -96,7 +102,7 @@ class ExamService {
       .populate("exam");
 
     if (req.user!.role === RoleEnum.USER) {
-      if (result?.score) {
+      if (result?.score !== undefined) {
         const exam = result.exam as IExam;
 
         const detailedQuestions = exam.questions.map((question) => {
@@ -118,6 +124,9 @@ class ExamService {
           data: { score: result.score, questions: detailedQuestions },
         });
       } else {
+        if (!req.user!.grade)
+          throw new BadRequestException("You must select your grade first");
+
         const exam = await examModel
           .findOne({ _id: id, grade: req.user!.grade })
           .select(

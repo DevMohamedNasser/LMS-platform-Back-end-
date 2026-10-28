@@ -52,4 +52,9 @@ router.patch("/reset-password", (0, validation_middleware_1.validation)(authVali
 router.patch("/change-password", (0, validation_middleware_1.validation)(authValidation.changePasswordSchema), auth_service_1.default.changePassword);
 router.post("/social-login", (0, validation_middleware_1.validation)(authValidation.googleOAuthSchema), auth_service_1.default.googleLogin);
 router.post("/refresh-token", (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.refresh }), (0, authentication_middleware_1.authorization)({ accessRoles: [user_enum_1.RoleEnum.ADMIN, user_enum_1.RoleEnum.USER] }), auth_service_1.default.refreshToken);
+router.patch("/role/:id", (0, validation_middleware_1.validation)(authValidation.changeUserRole), (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), (0, authentication_middleware_1.authorization)({ accessRoles: [user_enum_1.RoleEnum.ADMIN] }), auth_service_1.default.changeUserRole);
+router.patch("/grade", (0, validation_middleware_1.validation)(authValidation.changeUserGrade), (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), auth_service_1.default.changeUserGrade);
+router.delete("/soft/:id", (0, validation_middleware_1.validation)(authValidation.mongoId), (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), (0, authentication_middleware_1.authorization)({ accessRoles: [user_enum_1.RoleEnum.ADMIN] }), auth_service_1.default.softDeleteUser);
+// Firebase notifications
+router.post("/enable-notifications", (0, validation_middleware_1.validation)(authValidation.FCMToken), (0, authentication_middleware_1.authentication)({ tokenType: authentication_middleware_1.TokenTypeEnum.access }), auth_service_1.default.firebaseEnableNotifications);
 exports.default = router;

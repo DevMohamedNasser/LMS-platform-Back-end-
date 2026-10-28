@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { GenderEnum } from "../../Utils/enums/user.enum";
+import { GenderEnum, RoleEnum } from "../../Utils/enums/user.enum";
 import { gradeEnum } from "../../Utils/enums/exam.enum";
 
 export const loginSchema = {
@@ -100,5 +100,23 @@ export const signupSchema = {
 export const FCMToken = {
   body: z.strictObject({
     deviceToken: z.string().trim().min(1, "Device token is required"),
+  }),
+};
+
+export const changeUserRole = {
+  body: z.strictObject({
+    role: z.enum(RoleEnum),
+  }),
+};
+
+export const changeUserGrade = {
+  body: z.object({
+    grade: z.enum(gradeEnum),
+  }),
+};
+
+export const mongoId = {
+  params: z.object({
+    id: z.string().regex(/^\w{24}$/, { error: "Invalid question id" }),
   }),
 };

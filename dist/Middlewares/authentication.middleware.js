@@ -26,6 +26,8 @@ const decodedToken = async ({ authorization, tokenType = TokenTypeEnum.access, }
     const user = await user_model_1.userModel.findOne({ _id: decoded.id });
     if (!user)
         throw new Error("User not found");
+    if (user.deletedAt)
+        throw new error_response_1.NotFoundException("Account has been deleted");
     return { decoded, user };
 };
 exports.decodedToken = decodedToken;

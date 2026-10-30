@@ -490,7 +490,3 @@ The following capabilities were not present in the backend code shared for this 
 - [ ] Implement admin GraphQL screens for users, exams, and exam results.
 - [ ] Register FCM device tokens after notification permission is granted.
 - [ ] Hide or label frontend features that do not yet have backend support.
-
----
-
-**Note:** This document is based on the backend routes, models, socket events, and GraphQL operations shared during the project discussion. Before publishing it as the definitive API contract, compare the endpoint payloads, response shapes, environment-variable names, and socket event names with the current source code.

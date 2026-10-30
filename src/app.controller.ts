@@ -21,6 +21,7 @@ import { initializeFirebase } from "./Utils/firebase/firebase.config";
 import { createHandler } from "graphql-http/lib/use/express";
 import { schema } from "./Modules/graphql/graphql.schema";
 import { buildCtx } from "./Modules/graphql/graphql.ctx";
+import { initializeSocket } from "./Utils/socket/socket.service";
 
 // const limiter: RateLimitRequestHandler = rateLimit({
 //   windowMs: env.WINDOW_MS,
@@ -89,11 +90,12 @@ const bootstrap = async (): Promise<void> => {
 
   app.use(globalErrorHandler);
 
-  app.listen(env.PORT, () => {
+  const httpServer = app.listen(env.PORT, () => {
     console.log(
       chalk.bgGreen(`Server is running on http://127.0.0.1:${env.PORT}`),
     );
   });
+  initializeSocket(httpServer);
 };
 
 export default bootstrap;

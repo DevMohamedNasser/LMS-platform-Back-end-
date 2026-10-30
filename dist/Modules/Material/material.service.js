@@ -71,6 +71,8 @@ class MaterialService {
     listAllMaterials = async (req, res) => {
         const { grade } = req.query;
         const user = req.user;
+        if (user.role === user_enum_1.RoleEnum.USER && user.grade === undefined)
+            throw new error_response_1.BadRequestException("Please choose your grade first");
         const filter = user.role === user_enum_1.RoleEnum.ADMIN
             ? { ...(grade && { grade }) }
             : { grade: user.grade };

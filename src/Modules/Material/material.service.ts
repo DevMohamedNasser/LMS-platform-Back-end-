@@ -3,6 +3,7 @@ import { ICreateMaterialDTO } from "./material.dto";
 import S3Service from "../../Utils/service/S3.service";
 import { materialModel } from "../../DB/Models/material.model";
 import {
+  BadRequestException,
   ConflictException,
   NotFoundException,
 } from "../../Utils/response/error.response";
@@ -83,10 +84,13 @@ class MaterialService {
     const { grade } = req.query as unknown as { grade?: number };
     const user = req.user!;
 
+    if (user.role === RoleEnum.USER && user.grade === undefined)
+      throw new BadRequestException("Please choose your grade first");
+
     const filter =
       user.role === RoleEnum.ADMIN
         ? { ...(grade && { grade }) }
-        : { grade: user.grade };
+        : { grade: user.grade! };
 
     const data = await materialModel.find(filter);
 

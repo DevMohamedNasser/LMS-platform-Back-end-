@@ -58,15 +58,17 @@ class AuthService {
     };
     login = async (req, res) => {
         const { email, password } = req.body;
-        // const user = await userModel.findOne({
-        //   email,
-        //   confirmedAt: { $exists: true },
-        // });
-        const user = await user_model_1.userModel.findOne({ email });
+        const isAdmin = req.query.isAdmin == "true";
+        console.log(isAdmin);
+        const user = await user_model_1.userModel.findOne({
+            email,
+            ...(isAdmin && { role: user_enum_1.RoleEnum.ADMIN }),
+        });
         if (!user)
             throw new error_response_1.NotFoundException(`User not found, plz signup`);
         if (!user.confirmedAt)
             throw new error_response_1.BadRequestException("Plz verify ur email first");
+        console.log("test is admin", isAdmin && user.role);
         if (!(await (0, hash_security_1.compareHash)(password, user.password)))
             throw new error_response_1.UnauthorizedException(`Incorrect email or password`);
         const tokens = (0, tokens_security_1.getNewLoginCredentials)(user);

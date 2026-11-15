@@ -23,7 +23,7 @@ import { emailEvent } from "../../Utils/events/email.event";
 import { getNewLoginCredentials } from "../../Utils/Security/tokens.security";
 import { env } from "../../Config/config.service";
 import { IPayloadGoogleOAuth } from "../../Utils/SocialLogin.interface";
-import { ProviderEnum } from "../../Utils/enums/user.enum";
+import { ProviderEnum, RoleEnum } from "../../Utils/enums/user.enum";
 import { Encrypt } from "../../Utils/Security/encryption.security";
 import { Types } from "mongoose";
 
@@ -93,16 +93,15 @@ class AuthService {
 
   login = async (req: Request, res: Response): Promise<Response> => {
     const { email, password }: ILoginDTO = req.body;
+    const isAdmin = req.query.isAdmin == "true";
 
-    // const user = await userModel.findOne({
-    //   email,
-    //   confirmedAt: { $exists: true },
-    // });
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({
+      email,
+      ...(isAdmin && { role: RoleEnum.ADMIN }),
+    });
     if (!user) throw new NotFoundException(`User not found, plz signup`);
     if (!user.confirmedAt)
       throw new BadRequestException("Plz verify ur email first");
-
     if (!(await compareHash(password, user.password)))
       throw new UnauthorizedException(`Incorrect email or password`);
 

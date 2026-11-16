@@ -59,7 +59,6 @@ class AuthService {
     login = async (req, res) => {
         const { email, password } = req.body;
         const isAdmin = req.query.isAdmin == "true";
-        console.log(isAdmin);
         const user = await user_model_1.userModel.findOne({
             email,
             ...(isAdmin && { role: user_enum_1.RoleEnum.ADMIN }),
@@ -68,7 +67,6 @@ class AuthService {
             throw new error_response_1.NotFoundException(`User not found, plz signup`);
         if (!user.confirmedAt)
             throw new error_response_1.BadRequestException("Plz verify ur email first");
-        console.log("test is admin", isAdmin && user.role);
         if (!(await (0, hash_security_1.compareHash)(password, user.password)))
             throw new error_response_1.UnauthorizedException(`Incorrect email or password`);
         const tokens = (0, tokens_security_1.getNewLoginCredentials)(user);
@@ -162,13 +160,17 @@ class AuthService {
     };
     googleLogin = async (req, res) => {
         const { idToken } = req.body;
+        const isAdmin = req.query.isAdmin == "true";
         const { email, email_verified, name: username, picture, } = await this.verifyGoogleAcc(idToken);
         if (!email_verified || !email || !username)
             throw new error_response_1.BadRequestException("Email not verified");
-        if (!email_verified)
-            throw new error_response_1.BadRequestException("Email not verified");
         let user = await user_model_1.userModel.findOne({ email });
-        if (!user) {
+        if (isAdmin) {
+            if (!user || user.role !== user_enum_1.RoleEnum.ADMIN) {
+                throw new error_response_1.UnauthorizedException("Invalid admin account");
+            }
+        }
+        else if (!user) {
             user = await user_model_1.userModel.create({
                 confirmedAt: new Date(),
                 email,

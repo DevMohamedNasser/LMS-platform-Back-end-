@@ -227,6 +227,7 @@ class AuthService {
 
   googleLogin = async (req: Request, res: Response): Promise<Response> => {
     const { idToken }: IGoogleOAuthDTO = req.body;
+    const isAdmin = req.query.isAdmin == "true";
 
     const {
       email,
@@ -238,10 +239,12 @@ class AuthService {
     if (!email_verified || !email || !username)
       throw new BadRequestException("Email not verified");
 
-    if (!email_verified) throw new BadRequestException("Email not verified");
-
     let user = await userModel.findOne({ email });
-    if (!user) {
+    if (isAdmin) {
+      if (!user || user.role !== RoleEnum.ADMIN) {
+        throw new UnauthorizedException("Invalid admin account");
+      }
+    } else if (!user) {
       user = await userModel.create({
         confirmedAt: new Date(),
         email,

@@ -227,7 +227,8 @@ class AuthService {
 
   googleLogin = async (req: Request, res: Response): Promise<Response> => {
     const { idToken }: IGoogleOAuthDTO = req.body;
-    const isAdmin = req.query.isAdmin == "true";
+
+    const isAdmin = req.query.isAdmin === "true";
 
     const {
       email,
@@ -240,25 +241,30 @@ class AuthService {
       throw new BadRequestException("Email not verified");
 
     let user = await userModel.findOne({ email });
+
     if (isAdmin) {
       if (!user || user.role !== RoleEnum.ADMIN) {
         throw new UnauthorizedException("Invalid admin account");
       }
-    } else if (!user) {
-      user = await userModel.create({
-        confirmedAt: new Date(),
-        email,
-        username,
-        profilePic: picture ?? "",
-        provider: ProviderEnum.Google,
-      });
+    } else {
+      if (user && user.role !== RoleEnum.USER) {
+        throw new UnauthorizedException("Invalid user account");
+      }
+
+      if (!user) {
+        user = await userModel.create({
+          confirmedAt: new Date(),
+          email,
+          username,
+          profilePic: picture ?? "",
+          provider: ProviderEnum.Google,
+        });
+      }
     }
 
     const tokens = getNewLoginCredentials(user);
 
-    return res
-      .status(201)
-      .json({ message: "Signup & Login successfully", tokens });
+    return res.status(200).json({ message: "Login successfully", tokens });
   };
 
   refreshToken = async (req: Request, res: Response): Promise<Response> => {

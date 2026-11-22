@@ -97,7 +97,7 @@ class AuthService {
 
     const user = await userModel.findOne({
       email,
-      ...(isAdmin && { role: RoleEnum.ADMIN }),
+      role: isAdmin ? RoleEnum.ADMIN : RoleEnum.USER,
     });
     if (!user) throw new NotFoundException(`User not found, plz signup`);
     if (!user.confirmedAt)

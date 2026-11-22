@@ -61,7 +61,7 @@ class AuthService {
         const isAdmin = req.query.isAdmin == "true";
         const user = await user_model_1.userModel.findOne({
             email,
-            ...(isAdmin && { role: user_enum_1.RoleEnum.ADMIN }),
+            role: isAdmin ? user_enum_1.RoleEnum.ADMIN : user_enum_1.RoleEnum.USER,
         });
         if (!user)
             throw new error_response_1.NotFoundException(`User not found, plz signup`);
